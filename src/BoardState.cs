@@ -365,11 +365,21 @@ namespace Chess2
                         }
                         else if (ThisSquare == SquareState.WhiteRook || ThisSquare == SquareState.BlackRook)
                         {
-
+                            PossiblePieceDestinations.AddRange(PotentialMoveLine(NextToMove, f, r, 0)); //up
+                            PossiblePieceDestinations.AddRange(PotentialMoveLine(NextToMove, f, r, 2)); //right
+                            PossiblePieceDestinations.AddRange(PotentialMoveLine(NextToMove, f, r, 4)); //down
+                            PossiblePieceDestinations.AddRange(PotentialMoveLine(NextToMove, f, r, 6)); //left
                         }
                         else if (ThisSquare == SquareState.WhiteQueen || ThisSquare == SquareState.BlackQueen)
                         {
-
+                            PossiblePieceDestinations.AddRange(PotentialMoveLine(NextToMove, f, r, 0)); //up
+                            PossiblePieceDestinations.AddRange(PotentialMoveLine(NextToMove, f, r, 1)); //up right
+                            PossiblePieceDestinations.AddRange(PotentialMoveLine(NextToMove, f, r, 2)); //right
+                            PossiblePieceDestinations.AddRange(PotentialMoveLine(NextToMove, f, r, 3)); //down right
+                            PossiblePieceDestinations.AddRange(PotentialMoveLine(NextToMove, f, r, 4)); //down
+                            PossiblePieceDestinations.AddRange(PotentialMoveLine(NextToMove, f, r, 5)); //down left
+                            PossiblePieceDestinations.AddRange(PotentialMoveLine(NextToMove, f, r, 6)); //left
+                            PossiblePieceDestinations.AddRange(PotentialMoveLine(NextToMove, f, r, 7)); //up left
                         }
                         else if (ThisSquare == SquareState.WhiteKing || ThisSquare == SquareState.BlackKing)
                         {
