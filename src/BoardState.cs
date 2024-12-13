@@ -300,7 +300,21 @@ namespace Chess2
     
         public BoardState Copy()
         {
-            return BoardState.Load(ToString());
+            BoardState ToReturn = new BoardState();
+
+            //Copy board state
+            for (int f = 0; f < 8; f++)
+            {
+                for (int r = 0; r < 8; r++)
+                {
+                    ToReturn.Board[f,r] = Board[f,r];
+                }
+            }
+
+            //Copy next to move
+            ToReturn.NextToMove = NextToMove;
+
+            return ToReturn;
         }
 
         public bool SquareOccupied(int file, int rank)
