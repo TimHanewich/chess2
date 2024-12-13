@@ -6,7 +6,7 @@ namespace Chess2
     {
         public static void Main(string[] args)
         {
-            BoardState bs = BoardState.Load("7k/1n6/8/8/4R3/5B2/8/K7 w - - 0 1");
+            BoardState bs = BoardState.Load("r7/2k5/7b/8/3Nn3/7r/2K5/3RBR2 b");
             BoardState[] nexts = bs.PossibleNextStates();
             foreach (BoardState nbs in nexts)
             {

@@ -331,6 +331,7 @@ namespace Chess2
             }
         }
 
+        //Lists out the possible next states
         public BoardState[] PossibleNextStates()
         {
             List<BoardState> ToReturn = new List<BoardState>();
@@ -404,11 +405,9 @@ namespace Chess2
         }
 
 
-
+        //Figures out a list of potential desination squares based on a linear direction, taking into account factors like can't "jump over" your own piece and can capture opponents.
         public (int,int)[] PotentialMoveLine(bool moving_color, int start_file, int start_rank, int direction)
         {
-            //Figures out a list of potential desination squares based on a linear direction, taking into account factors like can't "jump over" your own piece and can capture opponents.
-
             //Directions
             //0 = up
             //1 = up + right
