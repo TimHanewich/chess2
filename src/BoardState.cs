@@ -6,6 +6,7 @@ namespace Chess2
     {
         //Square states
         public SquareState[,] Board = new SquareState[8,8]; //X = file (letter), Y = rank (number). For example, square "B4" would be [1,3]
+        public bool NextToMove {get; set;} //true = white, false = black
 
         #region "Board squares"
 
@@ -91,6 +92,8 @@ namespace Chess2
         public override string ToString()
         {
             string ToReturn = "";
+            
+            //Prepare square representation
             for (int r = 7; r >= 0; r--)
             {
                 //Declare space build up
@@ -184,6 +187,16 @@ namespace Chess2
                 }
             }
 
+            //Next to move
+            if (NextToMove)
+            {
+                ToReturn = ToReturn + " w";
+            }
+            else
+            {
+                ToReturn = ToReturn + " b";
+            }
+
             return ToReturn;
         }
     
@@ -191,9 +204,13 @@ namespace Chess2
         {
             BoardState ToReturn = new BoardState();
 
+            //Strip out board squares portion
+            string[] parts = FEN.Split(" ");
+
+            //Figure out board squares
             int onFile = 0;
             int onRank = 7; //FEN starts on the 8th rank for whatever reason... weird
-            foreach (char c in FEN)
+            foreach (char c in parts[0])
             {
                 if (char.IsDigit(c)) //If it is a number
                 {
@@ -258,6 +275,23 @@ namespace Chess2
                     //Increase file by one
                     onFile = onFile + 1;
                 } 
+            }
+
+            //Figure out what move is next
+            if (parts.Length >= 2)
+            {
+                if (parts[1] == "w")
+                {
+                    ToReturn.NextToMove = true;
+                }
+                else if (parts[1] == "b")
+                {
+                    ToReturn.NextToMove = false;
+                }
+                else
+                {
+                    throw new Exception("Letter '" + parts[1] + "' not reognized as a valid next-to-move indicator (not w or b)");
+                }
             }
 
             return ToReturn;
