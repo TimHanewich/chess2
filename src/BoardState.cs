@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace Chess2
 {
@@ -295,6 +296,187 @@ namespace Chess2
             }
 
             return ToReturn;
+        }
+    
+        public BoardState Copy()
+        {
+            return BoardState.Load(ToString());
+        }
+
+        public bool SquareOccupied(int file, int rank)
+        {
+            return Board[file, rank] != SquareState.Empty;
+        }
+
+        //Determines what color is occupying a particular square.
+        //If there is no piece occuping, returns null (neutral)
+        public bool? SquareOccupyingColor(int file, int rank)
+        {
+            SquareState ss = Board[file, rank];
+            if (ss == SquareState.Empty)
+            {
+                return null;
+            }
+            else if (ss == SquareState.WhitePawn || ss == SquareState.WhiteKnight || ss == SquareState.WhiteBishop || ss == SquareState.WhiteRook || ss == SquareState.WhiteQueen || ss == SquareState.WhiteKing)
+            {
+                return true;
+            }
+            else if (ss == SquareState.BlackPawn || ss == SquareState.BlackKnight || ss == SquareState.BlackBishop || ss == SquareState.BlackRook || ss == SquareState.BlackQueen || ss == SquareState.BlackKing)
+            {
+                return false;
+            }
+            else
+            {
+                throw new Exception("Unable to determine color of status '" + ss.ToString() + "'");
+            }
+        }
+
+        public BoardState[] PossibleNextStates()
+        {
+            List<BoardState> ToReturn = new List<BoardState>();
+
+            for (int f = 0; f < 8; f++) //For each file
+            {
+                for (int r = 0; r < 8; r++) //For each rank
+                {
+                    //Get square status
+                    SquareState ThisSquare = Board[f,r];
+
+                    //if it is the same color as the color that is moving now, evaluate it
+                    if (SquareOccupyingColor(f, r) == NextToMove) //if the color of the piece on this square (if there is a piece) is the next to move color
+                    {
+                        List<(int, int)> PossiblePieceDestinations = new List<(int, int)>();
+
+                        //Assemble a list of potential desination 
+                        if (ThisSquare == SquareState.WhitePawn || ThisSquare == SquareState.BlackPawn) //pawns are tricky (first move, promotion, en passant)
+                        {
+
+                        }
+                        else if (ThisSquare == SquareState.WhiteKnight || ThisSquare == SquareState.BlackKnight)
+                        { 
+                            
+                        }
+                        else if (ThisSquare == SquareState.WhiteBishop || ThisSquare == SquareState.BlackBishop)
+                        {
+                            PossiblePieceDestinations.AddRange(PotentialMoveLine(NextToMove, f, r, 1)); //up right
+                            PossiblePieceDestinations.AddRange(PotentialMoveLine(NextToMove, f, r, 3)); //down right
+                            PossiblePieceDestinations.AddRange(PotentialMoveLine(NextToMove, f, r, 5)); //down left
+                            PossiblePieceDestinations.AddRange(PotentialMoveLine(NextToMove, f, r, 7)); //up left
+                        }
+                        else if (ThisSquare == SquareState.WhiteRook || ThisSquare == SquareState.BlackRook)
+                        {
+
+                        }
+                        else if (ThisSquare == SquareState.WhiteQueen || ThisSquare == SquareState.BlackQueen)
+                        {
+
+                        }
+                        else if (ThisSquare == SquareState.WhiteKing || ThisSquare == SquareState.BlackKing)
+                        {
+
+                        }
+
+                        //Now for each potential destination for this piece, simulate what the board state would look like if it moved there.
+                        foreach ((int,int) PossiblePieceDestination in PossiblePieceDestinations)
+                        {
+                            BoardState bs = Copy(); //essentially "duplicate" the current state
+                            bs.Board[PossiblePieceDestination.Item1, PossiblePieceDestination.Item2] = Board[f, r]; //Set the destination to the piece
+                            bs.Board[f, r] = SquareState.Empty; //"Remove" the piece from the space it came from, effectively completing the move
+                            bs.NextToMove = !bs.NextToMove; //Flip the next to move
+                            ToReturn.Add(bs);
+                        }
+                        
+                    }
+                }
+            }
+
+            return ToReturn.ToArray();
+        }
+
+
+
+        public (int,int)[] PotentialMoveLine(bool moving_color, int start_file, int start_rank, int direction)
+        {
+            //Figures out a list of potential desination squares based on a linear direction, taking into account factors like can't "jump over" your own piece and can capture opponents.
+
+            //Directions
+            //0 = up
+            //1 = up + right
+            //2 = right
+            //3 = down + right
+            //4 = down
+            //5 = down + left
+            //6 = left
+            //7 = up + left
+
+            List<(int, int)> ToReturn = new List<(int, int)>();
+
+            int onFile = start_file;
+            int onRank = start_rank;
+
+            while (true)
+            {
+                //increment
+                if (direction == 0)
+                {
+                    onRank = onRank + 1;
+                }
+                else if (direction == 1)
+                {
+                    onFile = onFile + 1;
+                    onRank = onRank + 1;
+                }
+                else if (direction == 2)
+                {
+                    onFile = onFile + 1;
+                }
+                else if (direction == 3)
+                {
+                    onFile = onFile + 1;
+                    onRank = onRank - 1;
+                }
+                else if (direction == 4)
+                {
+                    onRank = onRank - 1;
+                }
+                else if (direction == 5)
+                {
+                    onFile = onFile - 1;
+                    onRank = onRank - 1;
+                }
+                else if (direction == 6)
+                {
+                    onFile = onFile - 1;
+                }
+                else if (direction == 7)
+                {
+                    onFile = onFile - 1;
+                    onRank = onRank + 1;
+                }
+            
+                //If the posiiton we are currently "on" is OFF THE BOARD, stop
+                if (onRank > 7 || onRank < 0 || onFile > 7 || onFile < 0)
+                {
+                    return ToReturn.ToArray();
+                }
+
+                //Check occupying color of this potential destination
+                bool? OccupyingColor = SquareOccupyingColor(onFile, onRank);
+                if (OccupyingColor == null) //There is no color occupying this. it is empty.
+                {
+                    ToReturn.Add((onFile, onRank));
+                }
+                else if (OccupyingColor == !moving_color) //It is the opposite color (opponent)... so we can CAPTURE the piece, so yes, this is an option! But is is the last option, so stop now
+                {
+                    ToReturn.Add((onFile, onRank)); //Add it as an option
+                    return ToReturn.ToArray(); //And then return (cannot go any further than this!)
+                }
+                else //It is our own color. Can't do it. Dead end.
+                {
+                    return ToReturn.ToArray();
+                }
+            }
+
         }
     }
 }
